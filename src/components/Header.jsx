@@ -1,6 +1,17 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../features/auth/authSlice.js';
 
 export default function Header() {
+  const token = useSelector((state) => state.auth.token);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const onLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  }
+
   return (
     <nav className="main-nav">
       <Link className="main-nav-logo" to="/">
@@ -11,9 +22,26 @@ export default function Header() {
         />
         <h1 className="sr-only">Argent Bank</h1>
       </Link>
-      <Link className="main-nav-item" to="/login">
-        <i className="fa fa-user-circle"></i> Sign In
-      </Link>
+      <div>
+        {token ? (
+          <>
+            <Link className="main-nav-item" to="/profile">
+              <i className="fa fa-user-circle"></i> Profile
+            </Link>
+            <button
+              className="main-nav-item"
+              onClick={onLogout}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
+            >
+              <i className="fa fa-sign-out"></i> Sign Out
+            </button>
+          </>
+        ) : (
+          <Link className="main-nav-item" to="/login">
+            <i className="fa fa-user-circle"></i> Sign In
+          </Link>
+        )}
+      </div>
     </nav>
   );
 }

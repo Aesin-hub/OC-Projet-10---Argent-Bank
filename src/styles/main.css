@@ -17,6 +17,11 @@ body {
   flex: 1;
 }
 
+.main.bg-dark {
+  display: flex;
+  padding: 0rem 0rem 41rem 0rem;
+}
+
 .bg-dark {
   background-color: #12002b;
 }
