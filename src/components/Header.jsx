@@ -1,9 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../features/auth/authSlice.js';
+import { logout, selectToken, selectFirstName } from '../features/auth/authSlice.js';
 
 export default function Header() {
-  const token = useSelector((state) => state.auth.token);
+  const token = useSelector(selectToken);
+  const firstName = useSelector(selectFirstName);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -26,7 +28,7 @@ export default function Header() {
         {token ? (
           <>
             <Link className="main-nav-item" to="/profile">
-              <i className="fa fa-user-circle"></i> Profile
+              <i className="fa fa-user-circle"></i> {firstName || 'Profile'}
             </Link>
             <button
               className="main-nav-item"

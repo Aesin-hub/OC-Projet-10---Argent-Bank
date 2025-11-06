@@ -18,8 +18,8 @@ body {
 }
 
 .main.bg-dark {
-  display: flex;
-  padding: 0rem 0rem 41rem 0rem;
+  padding: 2rem 0;
+  min-height: calc(100vh - 210px);
 }
 
 .bg-dark {
@@ -225,10 +225,10 @@ body {
   align-items: center;
   border: 1px solid black;
   background-color: #fff;
-  width: 80%;
+  width: 100%;
   margin: 0 auto;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 1rem;
   box-sizing: border-box;
   text-align: left;
   margin-bottom: 2rem;
@@ -254,6 +254,15 @@ body {
 .account-content-wrapper {
   width: 100%;
   flex: 1;
+}
+
+.accounts-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .edit-button {

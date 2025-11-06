@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginApi } from '../services/userApi.js';
+import { loginApi, getProfileApi } from '../services/userApi.js';
 import { setCredentials } from '../features/auth/authSlice.js';
 
 export default function Login() {
@@ -20,12 +20,17 @@ export default function Login() {
     setError('');
     try {
       const token = await loginApi({ email, password });
-      dispatch(setCredentials({ token, remember }));
+
       if (remember) {
         localStorage.setItem('token', token);
       } else {
         sessionStorage.setItem('token', token);
       }
+
+      const profile = await getProfileApi(token);
+
+      dispatch(setCredentials({ token, remember, firstName: profile?.firstName }));
+
       navigate('/profile');
     } catch (err) {
       setError('Email ou mot de passe invalide.');
