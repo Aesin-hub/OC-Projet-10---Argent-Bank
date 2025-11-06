@@ -29,7 +29,7 @@ export default function Login() {
 
       const profile = await getProfileApi(token);
 
-      dispatch(setCredentials({ token, remember, firstName: profile?.firstName }));
+      dispatch(setCredentials({ token, remember, firstName: profile?.firstName, lastName: profile?.lastName, userName: profile?.userName }));
 
       navigate('/profile');
     } catch (err) {

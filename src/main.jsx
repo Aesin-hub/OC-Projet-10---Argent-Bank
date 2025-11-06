@@ -5,6 +5,9 @@ import './styles/main.css'
 
 import { Provider } from 'react-redux';
 import store from './app/store.js';
+import { injectToken } from './services/apiClient.js';
+
+injectToken(store);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

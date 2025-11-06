@@ -1,9 +1,15 @@
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { selectFirstName, selectLastName, selectUserName } from '../features/auth/authSlice';
 import AccountCard from "../components/AccountCard";
+import EditNameModal from "../components/EditNameModal";
 
 export default function Profile() {
-  // TODO: plus tard, remplacer par les données Redux/API (ex: firstName/lastName)
-  const firstName = "Tony";
-  const lastName = "Jarvis";
+  const firstName = useSelector(selectFirstName);
+  const lastName = useSelector(selectLastName);
+  const userName = useSelector(selectUserName);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <main className="main bg-dark">
@@ -11,10 +17,11 @@ export default function Profile() {
         <h1>
           Welcome back
           <br />
-          {firstName} {lastName}!
+          {userName || `${firstName} ${lastName}`}!
         </h1>
 
-        <button className="edit-button">Edit Name</button>
+        <button className="edit-button"
+        onClick={() => setIsModalOpen(true)}>Edit Name</button>
       </div>
 
       <h2 className="sr-only">Accounts</h2>
@@ -38,6 +45,8 @@ export default function Profile() {
           onClick={() => {}}
         />
       </div>
+
+      <EditNameModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </main>
   );
 }

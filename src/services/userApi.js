@@ -12,7 +12,7 @@ export async function getProfileApi(token) {
   return data?.body;
 }
 
-export async function updateProfileApi({ firstName, lastName }) {
-  const { data } = await api.put("/user/profile", { firstName, lastName });
+export async function updateProfileApi({ userName }) {
+  const { data } = await api.put("/user/profile", { userName });
   return data?.body;
 }
