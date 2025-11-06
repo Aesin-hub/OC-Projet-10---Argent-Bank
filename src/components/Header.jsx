@@ -10,6 +10,9 @@ export default function Header() {
   const navigate = useNavigate();
 
   const onLogout = () => {
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+
     dispatch(logout());
     navigate('/');
   }
@@ -28,7 +31,7 @@ export default function Header() {
         {token ? (
           <>
             <Link className="main-nav-item" to="/profile">
-              <i className="fa fa-user-circle"></i> {firstName || 'Profile'}
+              <i className="fa fa-user-circle"></i> { firstName || 'Profile'}
             </Link>
             <button
               className="main-nav-item"
