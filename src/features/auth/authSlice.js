@@ -1,45 +1,128 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { loginApi, getProfileApi, updateProfileApi } from '../../services/userApi';
 
 const initialState = {
     token: null,
+    user: null,
     remember: false,
-    firstName: null,
-    lastName: null,
-    userName: null,
+    loading: false,
+    error: null,
 };
+
+export const loginUser = createAsyncThunk(
+    'auth/login',
+    async ({ email, password, remember }, { rejectWithValue }) => {
+        try {
+            const token = await loginApi({ email, password });
+            
+            if (remember) {
+                localStorage.setItem('token', token);
+            } else {
+                sessionStorage.setItem('token', token);
+            }
+            
+            const user = await getProfileApi(token);
+            
+            return { token, user, remember };
+        } catch (error) {
+            return rejectWithValue(error.response?.data || 'Login failed');
+        }
+    }
+);
+
+export const restoreSession = createAsyncThunk(
+    'auth/restoreSession',
+    async (_, { rejectWithValue }) => {
+        try {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const remember = !!localStorage.getItem('token');
+            
+            if (!token) {
+                return rejectWithValue('No token found');
+            }
+            
+            const user = await getProfileApi(token);
+            return { token, user, remember };
+        } catch (error) {
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
+            return rejectWithValue(error.response?.data ||'Session expired');
+        }
+    }
+);
+
+export const updateUserName = createAsyncThunk(
+    'auth/updateUserName',
+    async ({ userName }, { rejectWithValue }) => {
+        try {
+            await updateProfileApi({ userName });
+            return userName;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || 'Update failed');
+        }
+    }
+);
 
 const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setCredentials: (state, action) => {
-            const { token, remember, firstName, lastName, userName } = action.payload;
-            state.token = token;
-            state.remember = !!remember;
-            if (firstName) state.firstName = firstName;
-            if (lastName) state.lastName = lastName;
-            if (userName) state.userName = userName;
-        },
-
-        updateUserName: (state, action) => {
-            state.userName = action.payload;
-        },
-
         logout(state) {
             state.token = null;
+            state.user = null;
             state.remember = false;
-            state.firstName = null;
-            state.lastName = null;
-            state.userName = null;
+            state.loading = false;
+            state.error = null;
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
         },
     },
-});      
+    extraReducers: (builder) => {
+        builder
+            .addCase(loginUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(loginUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.token = action.payload.token;
+                state.user = action.payload.user;
+                state.remember = action.payload.remember;
+            })
+            .addCase(loginUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            });
+        
+        builder
+            .addCase(restoreSession.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(restoreSession.fulfilled, (state, action) => {
+                state.loading = false;
+                state.token = action.payload.token;
+                state.user = action.payload.user;
+                state.remember = action.payload.remember;
+            })
+            .addCase(restoreSession.rejected, (state) => {
+                state.loading = false;
+            });
+        
+        builder
+            .addCase(updateUserName.fulfilled, (state, action) => {
+                if (state.user) {
+                    state.user.userName = action.payload;
+                }
+            });
+    },
+});
 
-export const { setCredentials, updateUserName, logout } = authSlice.actions;
+export const { logout } = authSlice.actions;
 
+// ✅ Nouveaux selectors
 export const selectToken = (state) => state.auth.token;
-export const selectFirstName = (state) => state.auth.firstName;
-export const selectLastName = (state) => state.auth.lastName;
-export const selectUserName = (state) => state.auth.userName;
+export const selectUser = (state) => state.auth.user;
+export const selectLoading = (state) => state.auth.loading;
+export const selectError = (state) => state.auth.error;
 
 export default authSlice.reducer;

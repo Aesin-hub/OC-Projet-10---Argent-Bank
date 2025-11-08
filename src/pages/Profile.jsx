@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { selectFirstName, selectLastName, selectUserName } from '../features/auth/authSlice';
+import { selectUser } from '../features/auth/authSlice';
 import AccountCard from "../components/AccountCard";
 import EditNameModal from "../components/EditNameModal";
 
 export default function Profile() {
-  const firstName = useSelector(selectFirstName);
-  const lastName = useSelector(selectLastName);
-  const userName = useSelector(selectUserName);
-
+  const user = useSelector(selectUser);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -17,11 +14,12 @@ export default function Profile() {
         <h1>
           Welcome back
           <br />
-          {userName || `${firstName} ${lastName}`}!
+          {user?.userName || `${user?.firstName} ${user?.lastName}`}!
         </h1>
 
-        <button className="edit-button"
-        onClick={() => setIsModalOpen(true)}>Edit Name</button>
+        <button className="edit-button" onClick={() => setIsModalOpen(true)}>
+          Edit Name
+        </button>
       </div>
 
       <h2 className="sr-only">Accounts</h2>

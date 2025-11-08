@@ -1,18 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout, selectToken, selectFirstName } from '../features/auth/authSlice.js';
+import { logout, selectToken, selectUser } from '../features/auth/authSlice';
 
 export default function Header() {
   const token = useSelector(selectToken);
-  const firstName = useSelector(selectFirstName);
-
+  const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const onLogout = () => {
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('token');
-
     dispatch(logout());
     navigate('/');
   }
@@ -31,7 +27,7 @@ export default function Header() {
         {token ? (
           <>
             <Link className="main-nav-item" to="/profile">
-              <i className="fa fa-user-circle"></i> { firstName || 'Profile'}
+              <i className="fa fa-user-circle"></i> {user?.firstName || 'Profile'}
             </Link>
             <button
               className="main-nav-item"

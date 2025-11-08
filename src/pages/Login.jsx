@@ -1,42 +1,26 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginApi, getProfileApi } from '../services/userApi.js';
-import { setCredentials } from '../features/auth/authSlice.js';
+import { loginUser, selectLoading, selectError } from '../features/auth/authSlice';
 
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
+  const loading = useSelector(selectLoading);
+  const error = useSelector(selectError);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const token = await loginApi({ email, password });
-
-      if (remember) {
-        localStorage.setItem('token', token);
-      } else {
-        sessionStorage.setItem('token', token);
-      }
-
-      const profile = await getProfileApi(token);
-
-      dispatch(setCredentials({ token, remember, firstName: profile?.firstName, lastName: profile?.lastName, userName: profile?.userName }));
-
+    
+    const result = await dispatch(loginUser({ email, password, remember }));
+    
+    if (loginUser.fulfilled.match(result)) {
       navigate('/profile');
-    } catch (err) {
-      setError('Email ou mot de passe invalide.');
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -46,7 +30,7 @@ export default function Login() {
         <i className="fa fa-user-circle"></i>
         <h1>Sign In</h1>
 
-        { error && <p className="error-message">{error}</p> }
+        {error && <p className="error-message">Email ou mot de passe invalide.</p>}
 
         <form onSubmit={handleSubmit}>
           <div className="input-wrapper">
@@ -55,7 +39,9 @@ export default function Login() {
               type="email" 
               id="email" 
               value={email} 
-              onChange={(event) => setEmail(event.target.value)} autoComplete="username" required 
+              onChange={(event) => setEmail(event.target.value)} 
+              autoComplete="username" 
+              required 
             />
           </div>
 
@@ -65,7 +51,9 @@ export default function Login() {
               type="password" 
               id="password" 
               value={password} 
-              onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required 
+              onChange={(event) => setPassword(event.target.value)} 
+              autoComplete="current-password" 
+              required 
             />
           </div>
 
@@ -79,7 +67,7 @@ export default function Login() {
             <label htmlFor="remember-me">Remember me</label>
           </div>
 
-          <button type="submit" className="sign-in-button">
+          <button type="submit" className="sign-in-button" disabled={loading}>
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
@@ -87,4 +75,3 @@ export default function Login() {
     </main>
   );
 }
-

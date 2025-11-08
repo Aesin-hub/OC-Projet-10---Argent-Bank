@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateProfileApi } from '../services/userApi';
-import { updateUserName, selectFirstName, selectLastName, selectUserName } from '../features/auth/authSlice';
+import { updateUserName as updateUserNameAction, selectUser } from '../features/auth/authSlice';
 
 export default function EditNameModal({ isOpen, onClose }) {
   const dispatch = useDispatch();
-  const firstName = useSelector(selectFirstName);
-  const lastName = useSelector(selectLastName);
-  const currentUserName = useSelector(selectUserName);
+  const user = useSelector(selectUser);
 
-  const [userName, setUserName] = useState(currentUserName || '');
+  const [userName, setUserName] = useState(user?.userName || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -18,16 +15,15 @@ export default function EditNameModal({ isOpen, onClose }) {
     setLoading(true);
     setError('');
 
-    try {
-      await updateProfileApi({ userName });
-      dispatch(updateUserName(userName));
+    const result = await dispatch(updateUserNameAction({ userName }));
+    
+    if (updateUserNameAction.fulfilled.match(result)) {
       onClose();
-    } catch (err) {
+    } else {
       setError('Une erreur est survenue lors de la mise à jour.');
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
+    
+    setLoading(false);
   }
 
   if (!isOpen) return null;
@@ -56,7 +52,7 @@ export default function EditNameModal({ isOpen, onClose }) {
             <input
               type="text"
               id="firstName"
-              value={firstName || ''}
+              value={user?.firstName || ''}
               disabled
               style={{ 
                 backgroundColor: '#e9ecef', 
@@ -67,11 +63,11 @@ export default function EditNameModal({ isOpen, onClose }) {
           </div>
 
           <div className="input-wrapper">
-            <label htmlFor="LastName">First name:</label>
+            <label htmlFor="lastName">Last name:</label>
             <input
               type="text"
               id="lastName"
-              value={lastName || ''}
+              value={user?.lastName || ''}
               disabled
               style={{ 
                 backgroundColor: '#e9ecef', 
