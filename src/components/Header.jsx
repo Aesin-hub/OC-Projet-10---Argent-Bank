@@ -27,7 +27,7 @@ export default function Header() {
         {token ? (
           <>
             <Link className="main-nav-item" to="/profile">
-              <i className="fa fa-user-circle"></i> {user?.firstName || 'Profile'}
+              <i className="fa fa-user-circle"></i> {user?.userName || 'Profile'}
             </Link>
             <button
               className="main-nav-item"

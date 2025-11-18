@@ -17,8 +17,6 @@ export const loginUser = createAsyncThunk(
             
             if (remember) {
                 localStorage.setItem('token', token);
-            } else {
-                sessionStorage.setItem('token', token);
             }
             
             const user = await getProfileApi(token);
@@ -34,18 +32,16 @@ export const restoreSession = createAsyncThunk(
     'auth/restoreSession',
     async (_, { rejectWithValue }) => {
         try {
-            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            const remember = !!localStorage.getItem('token');
+            const token = localStorage.getItem('token');
             
             if (!token) {
                 return rejectWithValue('No token found');
             }
             
             const user = await getProfileApi(token);
-            return { token, user, remember };
+            return { token, user, remember: true };
         } catch (error) {
             localStorage.removeItem('token');
-            sessionStorage.removeItem('token');
             return rejectWithValue(error.response?.data ||'Session expired');
         }
     }
@@ -74,7 +70,6 @@ const authSlice = createSlice({
             state.loading = false;
             state.error = null;
             localStorage.removeItem('token');
-            sessionStorage.removeItem('token');
         },
     },
     extraReducers: (builder) => {
